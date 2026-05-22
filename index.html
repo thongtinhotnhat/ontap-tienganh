@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Phrases Quiz - Pro Version</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e13;
+    --card: #16161f;
+    --border: #2a2a38;
+    --accent: #f5c542;
+    --accent2: #5b8fff;
+    --green: #3ecf8e;
+    --red: #ff5c72;
+    --text: #e8e8f0;
+    --muted: #6b6b85;
+    --radius: 14px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 60px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 680px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 24px;
+    padding-top: 12px;
+  }
+
+  .header .tag {
+    display: inline-block;
+    background: rgba(245, 197, 66, 0.12);
+    color: var(--accent);
+    border: 1px solid rgba(245, 197, 66, 0.3);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+  }
+
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 6vw, 42px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+
+  .header h1 span { color: var(--accent); }
+  .header p { color: var(--muted); margin-top: 10px; font-size: 14px; }
+
+  /* Screens */
+  .screen { display: none; animation: slide-up 0.3s ease; }
+  .screen.show { display: block; }
+
+  /* Setup Screen */
+  .setup-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .setup-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--accent2);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+  }
+
+  .form-group { margin-bottom: 20px; }
+  .form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .cat-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 5px;
+  }
+  
+  .cat-list::-webkit-scrollbar { width: 6px; }
+  .cat-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .cat-item {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .cat-item:hover { border-color: var(--accent2); }
+  .cat-item input { margin-right: 12px; transform: scale(1.2); accent-color: var(--accent2); }
+
+  select.custom-select {
+    width: 100%;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+  }
+  select.custom-select:focus { border-color: var(--accent2); }
+
+  /* Buttons */
+  .btn-primary {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius);
+    color: #0e0e13;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.18s;
+    letter-spacing: 0.3px;
+    margin-top: 10px;
+  }
+  .btn-primary:hover { background: #f7d060; transform: translateY(-1px); }
+
+  /* Mode selector */
+  .mode-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px;
+  }
+
+  .mode-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    background: transparent;
+    color: var(--muted);
+  }
+
+  .mode-btn.active {
+    background: var(--accent2);
+    color: white;
+  }
+
+  /* Quiz Area Styles */
+  .progress-wrap { margin-bottom: 20px; }
+  .progress-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; }
+  .progress-info .q-count { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
+  .score-badge { background: rgba(91, 143, 255, 0.15); border: 1px solid rgba(91, 143, 255, 0.3); color: var(--accent2); padding: 3px 12px; border-radius: 100px; font-size: 12px; font-weight: 500; }
+  .progress-bar { height: 5px; background: var(--border); border-radius: 100px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); border-radius: 100px; transition: width 0.4s; }
+
+  .q-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 28px 24px; margin-bottom: 16px; position: relative; overflow: hidden; }
+  .q-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+  .q-type { font-size: 11px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
+  .q-text { font-family: 'Syne', sans-serif; font-size: clamp(18px, 4vw, 24px); font-weight: 700; line-height: 1.3; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: all 0.18s; }
+  .option:hover:not(.disabled) { border-color: var(--accent2); background: rgba(91, 143, 255, 0.06); transform: translateX(3px); }
+  .option-letter { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; flex-shrink: 0; color: var(--muted); }
+  .option-text { font-size: 15px; line-height: 1.4; }
+  
+  .option.correct { border-color: var(--green); background: rgba(62, 207, 142, 0.08); }
+  .option.correct .option-letter { background: var(--green); color: #0e0e13; }
+  .option.wrong { border-color: var(--red); background: rgba(255, 92, 114, 0.08); }
+  .option.wrong .option-letter { background: var(--red); color: white; }
+  .option.disabled { cursor: not-allowed; opacity: 0.55; }
+  .option.correct.disabled, .option.wrong.disabled { opacity: 1; }
+
+  .result-indicator { display: none; align-items: center; gap: 10px; padding: 13px 18px; border-radius: var(--radius); margin-bottom: 14px; font-size: 14px; font-weight: 500; }
+  .result-indicator.show { display: flex; animation: slide-up 0.25s; }
+  .result-indicator.correct-msg { background: rgba(62, 207, 142, 0.1); border: 1px solid rgba(62, 207, 142, 0.3); color: var(--green); }
+  .result-indicator.wrong-msg { background: rgba(255, 92, 114, 0.1); border: 1px solid rgba(255, 92, 114, 0.3); color: var(--red); }
+
+  /* Results screen */
+  .results-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 40px 32px; position: relative; text-align: center;}
+  .results-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent2), var(--accent), var(--green)); }
+  .results-icon { font-size: 56px; margin-bottom: 16px; display: block; }
+  .results-title { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+  .results-subtitle { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+  
+  .stats-row { display: flex; gap: 12px; margin-bottom: 28px; }
+  .stat-box { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 16px 12px; }
+  .stat-box .val { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; }
+  .stat-box .lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .stat-box.g .val { color: var(--green); }
+  .stat-box.r .val { color: var(--red); }
+
+  .action-btns { display: flex; gap: 10px; }
+  .btn-outline { flex: 1; padding: 15px; background: transparent; border: 1.5px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.18s; }
+  .btn-outline:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  @keyframes slide-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="tag">✦ English Phrases</div>
+    <h1>Ôn tập <span>Tiếng Anh</span></h1>
+    <p>Tùy chỉnh bài tập theo ý muốn của bạn</p>
+  </div>
+
+  <!-- SETUP SCREEN -->
+  <div id="setup-screen" class="screen show">
+    <div class="setup-card">
+      <div class="setup-title">⚙️ Tùy chỉnh chế độ ôn tập</div>
+      
+      <div class="form-group">
+        <label>Chế độ dịch:</label>
+        <div class="mode-selector">
+          <button class="mode-btn active" id="btn-en-vi" onclick="setMode('en-vi')">🇺🇸 Anh → Việt</button>
+          <button class="mode-btn" id="btn-vi-en" onclick="setMode('vi-en')">🇻🇳 Việt → Anh</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Chọn các phần muốn ôn:</label>
+        <div class="cat-list" id="cat-list">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Số lượng câu hỏi hiển thị:</label>
+        <select id="q-count-select" class="custom-select">
+          <option value="10">10 câu</option>
+          <option value="20">20 câu</option>
+          <option value="30">30 câu</option>
+          <option value="all">Tất cả (Full câu trong các phần đã chọn)</option>
+        </select>
+      </div>
+
+      <button class="btn-primary" onclick="initQuiz()">Bắt đầu chiến →</button>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quiz-screen" class="screen">
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span class="q-count" id="q-count">Câu 1 / 10</span>
+        <span class="score-badge" id="score-badge">✓ 0 đúng</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-type" id="q-type">CHỌN NGHĨA ĐÚNG</div>
+      <div class="q-text" id="q-text">Loading...</div>
+    </div>
+
+    <div id="result-indicator" class="result-indicator">
+      <span class="icon" id="result-icon"></span>
+      <span id="result-text"></span>
+    </div>
+
+    <div class="options" id="options"></div>
+
+    <button class="btn-primary" id="next-btn" style="display:none;" onclick="nextQuestion()">Câu tiếp theo →</button>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="results-screen" class="screen">
+    <div class="results-card">
+      <span class="results-icon" id="results-icon">🎉</span>
+      <div class="results-title" id="results-title">Hoàn thành!</div>
+      <div class="results-subtitle" id="results-subtitle">Kết quả bài kiểm tra của bạn</div>
+
+      <div class="stats-row">
+        <div class="stat-box g">
+          <div class="val" id="stat-correct">0</div>
+          <div class="lbl">✓ Đúng</div>
+        </div>
+        <div class="stat-box r">
+          <div class="val" id="stat-wrong">0</div>
+          <div class="lbl">✗ Sai</div>
+        </div>
+        <div class="stat-box">
+          <div class="val" id="stat-pct">0%</div>
+          <div class="lbl">Chính xác</div>
+        </div>
+      </div>
+
+      <div class="action-btns">
+        <button class="btn-primary" onclick="backToSetup()" style="margin-top:0;">⚙️ Cài đặt lại</button>
+        <button class="btn-outline" onclick="retrySameQuiz()">↺ Chơi lại bộ này</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Dữ liệu được chia theo nhóm
+const DATABASE = [
+  {
+    name: "Phần 1: Thành ngữ thông dụng P1",
+    phrases: [
+      ["Hit the books.", "Bắt đầu học bài."],
+      ["Hit the sack.", "Đi ngủ."],
+      ["Once in a blue moon.", "Hiếm khi xảy ra."],
+      ["The best of both worlds.", "Vẹn cả đôi đường."],
+      ["Cost an arm and a leg.", "Rất đắt đỏ."],
+      ["Let the cat out of the bag.", "Để lộ bí mật."],
+      ["Piece of mind.", "Sự tĩnh tâm/thanh thản."],
+      ["Speak of the devil.", "Vừa nói đến là xuất hiện ngay."],
+      ["Take it with a grain of salt.", "Đừng quá tin vào lời ai đó nói."],
+      ["Your guess is as good as mine.", "Tôi cũng không biết đâu."]
+    ]
+  },
+  {
+    name: "Phần 2: Khi cần thời gian suy nghĩ",
+    phrases: [
+      ["Give me a sec.", "Đợi tôi một chút."],
+      ["Let me think...", "Để tôi nghĩ đã..."],
+      ["It’s on the tip of my tongue.", "Nó ngay trên đầu lưỡi rồi – sắp nhớ ra."],
+      ["Bear with me.", "Xin hãy kiên nhẫn với tôi."],
+      ["To be honest...", "Thú thật là..."],
+      ["As far as I know.", "Theo như tôi biết."],
+      ["In a nutshell.", "Nói tóm lại."],
+      ["Actually...", "Thực ra thì..."],
+      ["Long story short.", "Tóm tắt câu chuyện dài là..."],
+      ["By the way...", "Nhân tiện thì..."]
+    ]
+  },
+  {
+    name: "Phần 3: Phản ứng trước một tin tức",
+    phrases: [
+      ["That’s a relief.", "Đỡ lo quá/Thật nhẹ nhõm."],
+      ["What a shame!", "Thật đáng tiếc!"],
+      ["Good for you!", "Mừng cho bạn!"],
+      ["That’s awesome!", "Tuyệt vời quá!"],
+      ["I’m so sorry to hear that.", "Tôi rất tiếc khi nghe điều đó."],
+      ["You’re kidding!", "Bạn đang đùa à!"],
+      ["No way!", "Không thể nào!"],
+      ["Tell me about it!", "Tôi hiểu mà/Khổ lắm nói mãi!"],
+      ["Better luck next time.", "May mắn hơn vào lần sau nhé."],
+      ["Keep your chin up.", "Hãy lạc quan lên."]
+    ]
+  },
+  {
+    name: "Phần 4: Trong giao tiếp công việc",
+    phrases: [
+      ["Can we touch base later?", "Chúng ta trao đổi lại sau nhé?"],
+      ["Let’s get the ball rolling.", "Bắt đầu tiến hành thôi."],
+      ["I’m on it.", "Tôi đang làm đây."],
+      ["Think outside the box.", "Suy nghĩ sáng tạo/vượt khuôn khổ."],
+      ["It’s a win-win situation.", "Tình huống đôi bên cùng có lợi."],
+      ["Back to the drawing board.", "Làm lại từ đầu."],
+      ["To make a long story short.", "Nói ngắn gọn là."],
+      ["Keep me in the loop.", "Hãy cập nhật tình hình cho tôi nhé."],
+      ["I’ll get back to you.", "Tôi sẽ phản hồi lại bạn sau."],
+      ["In the long run.", "Về lâu về dài."]
+    ]
+  },
+  {
+    name: "Phần 5: Kết thúc & Tạm biệt",
+    phrases: [
+      ["Take care.", "Bảo trọng nhé."],
+      ["Catch you later.", "Gặp lại sau nhé."],
+      ["Have a good one!", "Chúc một ngày tốt lành!"],
+      ["I’ve got to get going.", "Tôi phải đi bây giờ."],
+      ["It was nice chatting with you.", "Rất vui được trò chuyện với bạn."],
+      ["Keep in touch!", "Giữ liên lạc nhé!"],
+      ["See you around.", "Hẹn gặp lại loanh quanh đâu đây."],
+      ["I’m off.", "Tôi đi đây."],
+      ["Safe travels!", "Thượng lộ bình an!"],
+      ["Until next time.", "Hẹn gặp lại lần tới."]
+    ]
+  },
+  {
+    name: "Phần 6: Giao tiếp hàng ngày khác",
+    phrases: [
+      ["Get out of hand.", "Mất kiểm soát."],
+      ["Hang in there.", "Cố gắng lên, đừng bỏ cuộc."],
+      ["Better late than never.", "Thà muộn còn hơn không."],
+      ["So far so good.", "Đến nay mọi thứ vẫn ổn."],
+      ["Beat around the bush.", "Nói vòng vo tam quốc."],
+      ["Cut to the chase.", "Đi thẳng vào vấn đề chính."],
+      ["How was your day?", "Ngày hôm nay của bạn thế nào?"]
+    ]
+  },
+  {
+    name: "Phần 7: Thành ngữ thông dụng P2",
+    phrases: [
+      ["Hold your horses.", "Kiềm chế lại/Đừng vội vàng."],
+      ["Cry over spilled milk.", "Tiếc rẻ những gì đã mất/đã qua."],
+      ["Burn the midnight oil.", "Thức khuya làm việc/học tập."],
+      ["Cut someone some slack.", "Đừng quá khắt khe với ai đó."],
+      ["Get your act together.", "Chỉnh đốn lại bản thân/Làm việc nghiêm túc lại."],
+      ["Under the radar.", "Kín tiếng/Không gây sự chú ý."],
+      ["Up in the air.", "Chưa quyết định/Còn mông lung."],
+      ["Barking up the wrong tree.", "Nhầm lẫn mục tiêu/Đoán sai hướng."],
+      ["Piece of cake.", "Rất dễ dàng."],
+      ["Play it by ear.", "Tùy cơ ứng biến."]
+    ]
+  },
+  {
+    name: "Phần 8: Diễn đạt sự ngạc nhiên",
+    phrases: [
+      ["You're pulling my leg!", "Bạn đang trêu tôi đấy à!"],
+      ["I can't believe my eyes.", "Tôi không tin vào mắt mình nữa."],
+      ["That's unheard of.", "Chuyện đó chưa từng nghe thấy luôn."],
+      ["Who would have thought?", "Ai mà ngờ tới cơ chứ?"],
+      ["No kidding?", "Không đùa đấy chứ?"],
+      ["You don't say!", "Thật thế sao!"],
+      ["That's mind-blowing.", "Thật là kinh ngạc/ấn tượng."],
+      ["It's out of this world.", "Nó tuyệt vời đến mức không tưởng."],
+      ["Fancy meeting you here!", "Thật tình cờ khi gặp bạn ở đây!"],
+      ["I'm speechless.", "Tôi không thốt nên lời/cạn lời."]
+    ]
+  },
+  {
+    name: "Phần 9: An ủi và Khích lệ",
+    phrases: [
+      ["It's not the end of the world.", "Đây chưa phải tận thế đâu."],
+      ["Don't sweat it.", "Đừng lo lắng quá/Đừng bận tâm."],
+      ["Take it easy.", "Cứ bình tĩnh/Thư giãn đi."],
+      ["Give it your best shot.", "Hãy cố gắng hết sức mình."],
+      ["You're on the right track.", "Bạn đang đi đúng hướng rồi đấy."],
+      ["Look on the bright side.", "Hãy nhìn vào mặt tích cực của vấn đề."],
+      ["Everything will be alright.", "Mọi chuyện rồi sẽ ổn thôi."],
+      ["Don't let it get you down.", "Đừng để chuyện đó làm bạn nản lòng."],
+      ["Believe in yourself.", "Hãy tin vào bản thân."],
+      ["I'm rooting for you.", "Tôi đang cổ vũ cho bạn đây."]
+    ]
+  },
+  {
+    name: "Phần 10: Phàn nàn",
+    phrases: [
+      ["That’s the last straw.", "Giọt nước tràn ly/Quá sức chịu đựng rồi."],
+      ["What a pain in the neck!", "Thật là phiền phức!"],
+      ["It's driving me nuts.", "Nó đang làm tôi phát điên lên."],
+      ["Enough is enough.", "Đủ rồi đấy nhé."],
+      ["I've had it up to here.", "Tôi chịu đựng hết nổi rồi."],
+      ["It's a ripoff.", "Thật là một sự lừa đảo/Giá quá đắt so với thực tế."],
+      ["That's not fair.", "Như vậy không công bằng."],
+      ["Don't get me started.", "Đừng để tôi phải bắt đầu nói về chuyện đó."],
+      ["It's a waste of time.", "Thật lãng phí thời gian."],
+      ["I'm fed up with this.", "Tôi chán ngấy việc này rồi."]
+    ]
+  },
+  {
+    name: "Phần 11: Hỏi ý kiến và cảm xúc",
+    phrases: [
+      ["How do you feel about this?", "Bạn cảm thấy thế nào về việc này?"],
+      ["What's your take on...?", "Quan điểm của bạn về... là gì?"],
+      ["Are you with me?", "Bạn có hiểu ý tôi nói không?"],
+      ["Does that sound okay to you?", "Bạn nghe thế có ổn không?"],
+      ["What do you reckon?", "Bạn nghĩ sao/Bạn đoán thế nào?"],
+      ["Are you sure about that?", "Bạn có chắc về điều đó không?"],
+      ["Is it just me or...?", "Chỉ mình tôi thấy thế hay là...?"],
+      ["Any thoughts?", "Có ý kiến gì không?"],
+      ["Do you get what I'm saying?", "Bạn có hiểu tôi đang nói gì không?"]
+    ]
+  }
+];
+
+const LETTERS = ['A','B','C','D'];
+let mode = 'en-vi';
+let allSelectedPhrases = [];
+let currentQuestions = [];
+let current = 0;
+let score = 0;
+let answered = false;
+
+// Render categories on load
+window.onload = () => {
+  const list = document.getElementById('cat-list');
+  DATABASE.forEach((cat, idx) => {
+    const el = document.createElement('label');
+    el.className = 'cat-item';
+    el.innerHTML = `<input type="checkbox" value="${idx}" checked> ${cat.name} (${cat.phrases.length} câu)`;
+    list.appendChild(el);
+  });
+};
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-en-vi').classList.toggle('active', m === 'en-vi');
+  document.getElementById('btn-vi-en').classList.toggle('active', m === 'vi-en');
+}
+
+function switchScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function initQuiz() {
+  const checkboxes = document.querySelectorAll('#cat-list input:checked');
+  if(checkboxes.length === 0) {
+    alert("Ê, chọn ít nhất 1 phần chứ!");
+    return;
+  }
+
+  // Gộp data từ các phần được chọn
+  allSelectedPhrases = [];
+  checkboxes.forEach(cb => {
+    allSelectedPhrases.push(...DATABASE[cb.value].phrases);
+  });
+
+  const countVal = document.getElementById('q-count-select').value;
+  let qCount = countVal === 'all' ? allSelectedPhrases.length : parseInt(countVal);
+  if(qCount > allSelectedPhrases.length) qCount = allSelectedPhrases.length;
+
+  // Lấy ngẫu nhiên
+  const pool = shuffle(allSelectedPhrases).slice(0, qCount);
+  
+  // Tạo mảng câu hỏi & đáp án sai
+  currentQuestions = pool.map(item => {
+    const others = allSelectedPhrases.filter(x => x !== item);
+    // Nếu data quá ít (< 4 câu), lấy thêm từ cả DB gốc cho đủ đáp án sai
+    let fallbackOthers = [];
+    if(others.length < 3) {
+      DATABASE.forEach(cat => fallbackOthers.push(...cat.phrases));
+      fallbackOthers = fallbackOthers.filter(x => x !== item);
+    }
+    const wrongs = shuffle(others.length >= 3 ? others : fallbackOthers).slice(0, 3);
+    return { correct: item, options: shuffle([item, ...wrongs]) };
+  });
+
+  startPlay();
+}
+
+function startPlay() {
+  current = 0;
+  score = 0;
+  switchScreen('quiz-screen');
+  renderQuestion();
+}
+
+function retrySameQuiz() {
+  // Đảo lại chính bộ câu hỏi vừa rồi
+  currentQuestions = shuffle(currentQuestions).map(q => {
+    return { correct: q.correct, options: shuffle(q.options) };
+  });
+  startPlay();
+}
+
+function backToSetup() {
+  switchScreen('setup-screen');
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = currentQuestions[current];
+  const total = currentQuestions.length;
+
+  document.getElementById('q-count').textContent = `Câu ${current+1} / ${total}`;
+  document.getElementById('score-badge').textContent = `✓ ${score} đúng`;
+  document.getElementById('progress-fill').style.width = `${(current/total)*100}%`;
+
+  const isEnVi = mode === 'en-vi';
+  document.getElementById('q-type').textContent = isEnVi ? 'NGHĨA TIẾNG VIỆT LÀ?' : 'CỤM TỪ TIẾNG ANH LÀ?';
+  document.getElementById('q-text').textContent = isEnVi ? q.correct[0] : q.correct[1];
+
+  const ri = document.getElementById('result-indicator');
+  ri.className = 'result-indicator';
+
+  const nb = document.getElementById('next-btn');
+  nb.style.display = 'none';
+  nb.textContent = current < total-1 ? 'Câu tiếp theo →' : 'Xem kết quả →';
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const el = document.createElement('div');
+    el.className = 'option';
+    el.innerHTML = `
+      <div class="option-letter">${LETTERS[i]}</div>
+      <div class="option-text">${isEnVi ? opt[1] : opt[0]}</div>
+    `;
+    el.onclick = () => selectAnswer(el, opt, q);
+    opts.appendChild(el);
+  });
+}
+
+function selectAnswer(el, chosen, q) {
+  if (answered) return;
+  answered = true;
+
+  const isCorrect = chosen === q.correct;
+  const allOpts = document.querySelectorAll('.option');
+  const isEnVi = mode === 'en-vi';
+
+  allOpts.forEach((opt, i) => {
+    opt.classList.add('disabled');
+    if (currentQuestions[current].options[i] === q.correct) {
+      opt.classList.add('correct');
+    }
+  });
+
+  if (!isCorrect) {
+    el.classList.add('wrong');
+  } else {
+    score++;
+    document.getElementById('score-badge').textContent = `✓ ${score} đúng`;
+  }
+
+  const ri = document.getElementById('result-indicator');
+  if (isCorrect) {
+    ri.className = 'result-indicator correct-msg show';
+    ri.innerHTML = `<span class="icon">✓</span><span>Chính xác!</span>`;
+  } else {
+    ri.className = 'result-indicator wrong-msg show';
+    ri.innerHTML = `<span class="icon">✗</span><span>Sai rồi! Đáp án: "${isEnVi ? q.correct[1] : q.correct[0]}"</span>`;
+  }
+
+  document.getElementById('next-btn').style.display = 'block';
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= currentQuestions.length) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResults() {
+  switchScreen('results-screen');
+  const total = currentQuestions.length;
+  const pct = Math.round((score/total)*100);
+
+  document.getElementById('results-icon').textContent = pct >= 80 ? '🔥' : pct >= 50 ? '👍' : '💪';
+  document.getElementById('results-title').textContent = pct >= 80 ? 'Xuất sắc!' : pct >= 50 ? 'Không tệ!' : 'Cố lên bro!';
+  document.getElementById('results-subtitle').textContent = `Bạn đúng ${score}/${total} câu`;
+  
+  document.getElementById('stat-correct').textContent = score;
+  document.getElementById('stat-wrong').textContent = total - score;
+  document.getElementById('stat-pct').textContent = pct + '%';
+}
+</script>
+</body>
+</html>
